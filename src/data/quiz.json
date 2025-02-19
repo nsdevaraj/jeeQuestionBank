@@ -1,4 +1,5 @@
-[
+{
+    "questions": [
     {
         "description": "JEE Adv 2016 Paper 1",
         "index": 1,
@@ -4119,4 +4120,5 @@
         "question": "A trinitro compound, 1,3,5-tris-(4-nitrophenyl)benzene, on complete reaction with an excess of $\\mathrm{Sn} / \\mathrm{HCl}$ gives a major product, which on treatment with an excess of $\\mathrm{NaNO}_{2} / \\mathrm{HCl}$ at $0{ }^{\\circ} \\mathrm{C}$ provides $\\mathbf{P}$ as the product. $\\mathbf{P}$, upon treatment with excess of $\\mathrm{H}_{2} \\mathrm{O}$ at room temperature, gives the product $\\mathbf{Q}$. Bromination of $\\mathbf{Q}$ in aqueous medium furnishes the product $\\mathbf{R}$. The compound $\\mathbf{P}$ upon treatment with an excess of phenol under basic conditions gives the product $\\mathbf{S}$.\n\n\n\nThe molar mass difference between compounds $\\mathbf{Q}$ and $\\mathbf{R}$ is $474 \\mathrm{~g} \\mathrm{~mol}^{-1}$ and between compounds $\\mathbf{P}$ and $\\mathbf{S}$ is $172.5 \\mathrm{~g} \\mathrm{~mol}^{-1}$. What is the total number of carbon atoms and heteroatoms present in one molecule of $\\mathbf{S}$?\n\n\n\n[Use: Molar mass (in $\\mathrm{g} \\mathrm{mol}^{-1}$ ): $\\mathrm{H}=1, \\mathrm{C}=12, \\mathrm{~N}=14, \\mathrm{O}=16, \\mathrm{Br}=80, \\mathrm{Cl}=35.5$\n\n\n\nAtoms other than $\\mathrm{C}$ and $\\mathrm{H}$ are considered as heteroatoms]",
         "gold": "51"
     }
-]
+    ]
+}

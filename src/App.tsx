@@ -99,6 +99,10 @@ function App() {
   const [showResults, setShowResults] = useState(false);
 
   const questions = quizData.questions;
+
+  const handleQuestionSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setCurrentQuestion(Number(event.target.value));
+  };
   const currentQ = questions[currentQuestion];
 
   const handleAnswer = (answer: string) => {
@@ -193,6 +197,22 @@ function App() {
               }}
             />
           </div>
+        </div>
+
+        <div className="flex justify-center items-center gap-2 mt-4">
+          <label htmlFor="questionSelect" className="text-sm font-medium text-gray-700">Go to Question:</label>
+          <select
+            id="questionSelect"
+            value={currentQuestion}
+            onChange={handleQuestionSelect}
+            className="block w-32 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          >
+            {questions.map((_, index) => (
+              <option key={index} value={index}>
+                Question {index + 1}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="mb-8">
