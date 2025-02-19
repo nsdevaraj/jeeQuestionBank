@@ -132,11 +132,11 @@ function App() {
   }, [selectedSubject]);
 
   const questions = filteredQuestions;
+  const currentQ = questions[currentQuestion];
 
   const handleQuestionSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setCurrentQuestion(Number(event.target.value));
   };
-  const currentQ = questions[currentQuestion];
 
   const handleAnswer = (answer: string) => {
     setAnswers({
@@ -215,116 +215,115 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-lg p-8 max-w-2xl w-full">
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Question {currentQuestion + 1} of {questions.length}
-            </h2>
-            <div className="text-sm text-gray-500">
-              Score: {calculateScore()} / {currentQuestion + 1}
+    <div className="min-h-screen bg-gray-50 relative">
+      <div className="absolute top-4 right-4 text-gray-600 text-sm max-w-xs text-right">
+        {currentQ.description}
+      </div>
+      <div className="flex items-center justify-center p-4 h-screen">
+        <div className="bg-white rounded-xl shadow-lg p-8 max-w-2xl w-full">
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Question {currentQuestion + 1} of {questions.length}
+              </h2>
+              <div className="text-sm text-gray-500">
+                Score: {calculateScore()} / {currentQuestion + 1}
+              </div>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+                style={{
+                  width: `${((currentQuestion + 1) / questions.length) * 100}%`,
+                }}
+              />
             </div>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-              style={{
-                width: `${((currentQuestion + 1) / questions.length) * 100}%`,
-              }}
-            />
+          <div className="flex justify-center items-center gap-2 mt-4">
+            <label htmlFor="questionSelect" className="text-sm font-medium text-gray-700">Go to Question:</label>
+            <select
+              id="questionSelect"
+              value={currentQuestion}
+              onChange={handleQuestionSelect}
+              className="block w-32 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            >
+              {questions.map((_, index) => (
+                <option key={index} value={index}>
+                  Question {index + 1}
+                </option>
+              ))}
+            </select>
           </div>
-        </div>
-
-        <div className="flex justify-center items-center gap-2 mt-4">
-          <label htmlFor="questionSelect" className="text-sm font-medium text-gray-700">Go to Question:</label>
-          <select
-            id="questionSelect"
-            value={currentQuestion}
-            onChange={handleQuestionSelect}
-            className="block w-32 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          >
-            {questions.map((_, index) => (
-              <option key={index} value={index}>
-                Question {index + 1}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="mb-8">
-          <div className="text-lg text-gray-800 mb-6">
-            {renderMath(currentQ.question)}
-          </div>
-
-          <div className="space-y-3">
-            {currentQ.type === "MCQ" && (
-              <div className="space-y-2">
-                {["A", "B", "C", "D"].map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => handleAnswer(option)}
-                    className={`w-full text-left p-4 rounded-lg border transition-all ${
-                      answers[currentQuestion]?.[0] === option
-                        ? 'border-indigo-600 bg-indigo-50'
-                        : 'border-gray-200 hover:border-indigo-300'
-                    }`}
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {currentQ.type === "MCQ(multiple)" && (
-              <div className="space-y-2">
-                {["A", "B", "C", "D"].map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => handleMultiAnswer(option)}
-                    className={`w-full text-left p-4 rounded-lg border transition-all ${
-                      answers[currentQuestion]?.includes(option)
-                        ? 'border-indigo-600 bg-indigo-50'
-                        : 'border-gray-200 hover:border-indigo-300'
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      {answers[currentQuestion]?.includes(option) ? (
-                        <CheckCircle2 className="w-5 h-5 text-indigo-600 mr-3" />
-                      ) : (
-                        <XCircle className="w-5 h-5 text-gray-300 mr-3" />
-                      )}
+          <div className="mb-8">
+            <div className="text-lg text-gray-800 mb-6">
+              {renderMath(currentQ.question)}
+            </div>
+            <div className="space-y-3">
+              {currentQ.type === "MCQ" && (
+                <div className="space-y-2">
+                  {["A", "B", "C", "D"].map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => handleAnswer(option)}
+                      className={`w-full text-left p-4 rounded-lg border transition-all ${
+                        answers[currentQuestion]?.[0] === option
+                          ? 'border-indigo-600 bg-indigo-50'
+                          : 'border-gray-200 hover:border-indigo-300'
+                      }`}
+                    >
                       {option}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {(currentQ.type === "Integer" || currentQ.type === "Numeric") && (
-              <input
-                type="number"
-                value={answers[currentQuestion]?.[0] || ''}
-                onChange={(e) => handleAnswer(e.target.value)}
-                className="w-full p-4 rounded-lg border border-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
-                placeholder="Enter your answer..."
-              />
-            )}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {currentQ.type === "MCQ(multiple)" && (
+                <div className="space-y-2">
+                  {["A", "B", "C", "D"].map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => handleMultiAnswer(option)}
+                      className={`w-full text-left p-4 rounded-lg border transition-all ${
+                        answers[currentQuestion]?.includes(option)
+                          ? 'border-indigo-600 bg-indigo-50'
+                          : 'border-gray-200 hover:border-indigo-300'
+                      }`}
+                    >
+                      <div className="flex items-center">
+                        {answers[currentQuestion]?.includes(option) ? (
+                          <CheckCircle2 className="w-5 h-5 text-indigo-600 mr-3" />
+                        ) : (
+                          <XCircle className="w-5 h-5 text-gray-300 mr-3" />
+                        )}
+                        {option}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {(currentQ.type === "Integer" || currentQ.type === "Numeric") && (
+                <input
+                  type="number"
+                  value={answers[currentQuestion]?.[0] || ''}
+                  onChange={(e) => handleAnswer(e.target.value)}
+                  className="w-full p-4 rounded-lg border border-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
+                  placeholder="Enter your answer..."
+                />
+              )}
+            </div>
           </div>
-        </div>
-
-        <div className="flex justify-end">
-          <button
-            onClick={handleNext}
-            disabled={!answers[currentQuestion]}
-            className={`px-6 py-2 rounded-lg transition-all ${
-              answers[currentQuestion]
-                ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-            }`}
-          >
-            {currentQuestion === questions.length - 1 ? 'Finish' : 'Next'}
-          </button>
+          <div className="flex justify-end">
+            <button
+              onClick={handleNext}
+              disabled={!answers[currentQuestion]}
+              className={`px-6 py-2 rounded-lg transition-all ${
+                answers[currentQuestion]
+                  ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              {currentQuestion === questions.length - 1 ? 'Finish' : 'Next'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
