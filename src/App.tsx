@@ -1,17 +1,9 @@
-import React, { useState } from 'react';
-import { Brain, CheckCircle2, XCircle } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Brain, CheckCircle2, XCircle, BookOpen } from 'lucide-react';
 import quizData from './data/quiz.json';
 import 'katex/dist/katex.min.css';
 import katex from 'katex';
-
-interface Question {
-  id: number;
-  type: string;
-  question: string;
-  options?: string[];
-  correctAnswer?: string;
-  correctAnswers?: string[];
-}
+ 
 
 const Table = ({ content }: { content: string }) => {
   const rows = content
@@ -93,12 +85,53 @@ const renderMath = (text: string) => {
   });
 };
 
+const SubjectSelection = ({ onSelectSubject }: { onSelectSubject: (subject: string) => void }) => {
+  const subjects = [
+    { id: 'math', name: 'Mathematics', color: 'bg-blue-500' },
+    { id: 'phy', name: 'Physics', color: 'bg-green-500' },
+    { id: 'chem', name: 'Chemistry', color: 'bg-purple-500' }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        <div className="text-center mb-8">
+          <BookOpen className="w-16 h-16 mx-auto text-indigo-600 mb-4" />
+          <h1 className="text-2xl font-bold text-gray-800">JEE Question Bank</h1>
+          <p className="text-gray-600 mt-2">Select a subject to start practicing</p>
+        </div>
+        <div className="space-y-4">
+          {subjects.map((subject) => (
+            <button
+              key={subject.id}
+              onClick={() => onSelectSubject(subject.id)}
+              className={`w-full p-4 rounded-lg ${subject.color} text-white font-semibold hover:opacity-90 transition-opacity flex items-center justify-center space-x-2`}
+            >
+              <span>{subject.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 function App() {
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string[]>>({});
   const [showResults, setShowResults] = useState(false);
 
-  const questions = quizData.questions;
+  const filteredQuestions = useMemo(() => {
+    if (!selectedSubject) return [];
+    const subjectQuestions = quizData.questions.filter(q => q.subject === selectedSubject);
+    // Randomly select 20 questions
+    return subjectQuestions
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 20);
+  }, [selectedSubject]);
+
+  const questions = filteredQuestions;
 
   const handleQuestionSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setCurrentQuestion(Number(event.target.value));
@@ -175,6 +208,10 @@ function App() {
         </div>
       </div>
     );
+  }
+
+  if (!selectedSubject) {
+    return <SubjectSelection onSelectSubject={setSelectedSubject} />;
   }
 
   return (
