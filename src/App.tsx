@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Brain, CheckCircle2, XCircle, BookOpen } from 'lucide-react';
 import quizData from './data/quiz.json';
 import 'katex/dist/katex.min.css';
@@ -118,6 +118,9 @@ const SubjectSelection = ({ onSelectSubject }: { onSelectSubject: (subject: stri
 
 function App() {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [questionStartTime, setQuestionStartTime] = useState<number | null>(null);
+  const [timePerQuestion, setTimePerQuestion] = useState<Record<number, number>>({});
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string[]>>({});
   const [showResults, setShowResults] = useState(false);
@@ -139,11 +142,29 @@ function App() {
   };
 
   const handleAnswer = (answer: string) => {
+    // Record time spent on current question
+    if (questionStartTime) {
+      const timeSpent = Date.now() - questionStartTime;
+      setTimePerQuestion(prev => ({
+        ...prev,
+        [currentQuestion]: timeSpent
+      }));
+    }
     setAnswers({
       ...answers,
       [currentQuestion]: [answer],
     });
   };
+
+  useEffect(() => {
+    if (selectedSubject && !startTime) {
+      setStartTime(Date.now());
+    }
+  }, [selectedSubject]);
+
+  useEffect(() => {
+    setQuestionStartTime(Date.now());
+  }, [currentQuestion]);
 
   const handleMultiAnswer = (answer: string) => {
     const currentAnswers = answers[currentQuestion] || [];
@@ -184,6 +205,8 @@ function App() {
 
   if (showResults) {
     const score = calculateScore();
+    const totalTime = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+    const averageTimePerQuestion = Object.values(timePerQuestion).reduce((acc, curr) => acc + curr, 0) / questions.length / 1000;
     const percentage = (score / questions.length) * 100;
 
     return (
@@ -198,6 +221,10 @@ function App() {
             <p className="text-gray-600 mb-6">
               You got {score} out of {questions.length} questions correct
             </p>
+            <div className="text-sm text-gray-600 mb-6">
+              <p>Total Time: {Math.floor(totalTime / 60)}m {totalTime % 60}s</p>
+              <p>Average Time per Question: {averageTimePerQuestion.toFixed(1)}s</p>
+            </div>
             <button
               onClick={() => window.location.reload()}
               className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
