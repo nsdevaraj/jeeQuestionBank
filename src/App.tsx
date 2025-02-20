@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Brain, CheckCircle2, XCircle, BookOpen } from 'lucide-react';
+import { Brain, CheckCircle2, XCircle, BookOpen, Download } from 'lucide-react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import quizData from './data/quiz.json';
 import 'katex/dist/katex.min.css';
 import katex from 'katex';
@@ -125,6 +127,7 @@ function App() {
   const [answers, setAnswers] = useState<Record<number, string[]>>({});
   const [showResults, setShowResults] = useState(false);
   const [isReviewMode, setIsReviewMode] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const filteredQuestions = useMemo(() => {
     if (!selectedSubject) return [];
@@ -246,20 +249,71 @@ function App() {
     );
   }
 
+  const exportToPDF = async () => {
+    const reviewContent = document.getElementById('review-content');
+    if (!reviewContent) return;
+
+    // Show loading state
+    setExporting(true);
+
+    try {
+      const canvas = await html2canvas(reviewContent, {
+        scale: 2,
+        useCORS: true,
+        logging: false
+      });
+
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      const pdf = new jsPDF({
+        orientation: imgHeight > imgWidth ? 'portrait' : 'landscape',
+        unit: 'mm',
+      });
+
+      pdf.addImage(
+        canvas.toDataURL('image/jpeg', 0.9),
+        'JPEG',
+        0,
+        0,
+        imgWidth,
+        imgHeight
+      );
+
+      // Save the PDF
+      pdf.save(`quiz-review-${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+
+    // Hide loading state
+    setExporting(false);
+  };
+
   if (isReviewMode) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-lg p-8 max-w-2xl w-full">
           <div className="mb-8 flex justify-between items-center">
             <h2 className="text-2xl font-bold text-gray-900">Review Answers</h2>
-            <button
-              onClick={() => setIsReviewMode(false)}
-              className="text-gray-600 hover:text-gray-800"
-            >
-              Back to Results
-            </button>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={exportToPDF}
+                disabled={exporting}
+                className={`flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors ${exporting ? 'bg-gray-400' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+              >
+                <Download className="w-4 h-4" />
+                {exporting ? 'Exporting...' : 'Export PDF'}
+              </button>
+              <button
+                onClick={() => setIsReviewMode(false)}
+                className="text-gray-600 hover:text-gray-800"
+              >
+                Back to Results
+              </button>
+            </div>
           </div>
-          <div className="space-y-8">
+          <div id="review-content" className="space-y-8">
             {questions.map((q, index) => {
               const userAnswers = answers[index] || [];
               const isCorrect = JSON.stringify(userAnswers.sort()) === JSON.stringify(q.gold.split('').sort());
@@ -334,11 +388,11 @@ function App() {
               id="questionSelect"
               value={currentQuestion}
               onChange={handleQuestionSelect}
-              className="block w-32 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className="block w-18 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             >
               {questions.map((_, index) => (
                 <option key={index} value={index}>
-                  Question {index + 1}
+                  {index + 1}
                 </option>
               ))}
             </select>
