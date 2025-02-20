@@ -124,6 +124,7 @@ function App() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string[]>>({});
   const [showResults, setShowResults] = useState(false);
+  const [isReviewMode, setIsReviewMode] = useState(false);
 
   const filteredQuestions = useMemo(() => {
     if (!selectedSubject) return [];
@@ -203,7 +204,7 @@ function App() {
     return score;
   };
 
-  if (showResults) {
+  if (showResults && !isReviewMode) {
     const score = calculateScore();
     const totalTime = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
     const averageTimePerQuestion = Object.values(timePerQuestion).reduce((acc, curr) => acc + curr, 0) / questions.length / 1000;
@@ -225,12 +226,73 @@ function App() {
               <p>Total Time: {Math.floor(totalTime / 60)}m {totalTime % 60}s</p>
               <p>Average Time per Question: {averageTimePerQuestion.toFixed(1)}s</p>
             </div>
+            <div className="space-x-4">
+              <button
+                onClick={() => setIsReviewMode(true)}
+                className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                Review Answers
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isReviewMode) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-lg p-8 max-w-2xl w-full">
+          <div className="mb-8 flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-gray-900">Review Answers</h2>
             <button
-              onClick={() => window.location.reload()}
-              className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+              onClick={() => setIsReviewMode(false)}
+              className="text-gray-600 hover:text-gray-800"
             >
-              Try Again
+              Back to Results
             </button>
+          </div>
+          <div className="space-y-8">
+            {questions.map((q, index) => {
+              const userAnswers = answers[index] || [];
+              const isCorrect = JSON.stringify(userAnswers.sort()) === JSON.stringify(q.gold.split('').sort());
+              return (
+                <div key={index} className={`p-6 rounded-lg border ${isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} mb-4`}>
+                  <div className="flex items-start gap-4">
+                    {isCorrect ? (
+                      <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0" />
+                    ) : (
+                      <XCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
+                    )}
+                    <div>
+                      <h3 className="font-medium text-gray-900 mb-2">
+                        Question {index + 1}
+                      </h3>
+                      <div className="text-lg text-gray-800 mb-4 p-4 bg-white rounded border">
+                        {renderMath(q.question)}
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 mt-4">
+                        <div className="p-3 bg-white rounded border">
+                          <p className="text-sm font-medium text-gray-500 mb-1">Your answer:</p>
+                          <p className="text-lg font-medium">{userAnswers.join(', ') || 'No answer provided'}</p>
+                        </div>
+                        <div className="p-3 bg-white rounded border">
+                          <p className="text-sm font-medium text-gray-500 mb-1">Correct answer:</p>
+                          <p className="text-lg font-medium">{q.gold.split('').join(', ')}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
