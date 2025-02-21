@@ -401,7 +401,9 @@ function App() {
           <div className="mb-8">
             <div className="text-lg text-gray-800 mb-6">
               <div className="relative group">
+              <div className="max-h-[400px] overflow-y-auto">
               {renderMath(currentQ.question)}
+              </div>
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(currentQ.question);
