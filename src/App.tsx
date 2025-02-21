@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Brain, CheckCircle2, XCircle, BookOpen, Download, Copy } from 'lucide-react';
+import { Brain, CheckCircle2, XCircle, BookOpen, Download, Copy, Github } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import quizData from './data/quiz.json';
@@ -119,6 +119,7 @@ const SubjectSelection = ({ onSelectSubject }: { onSelectSubject: (subject: stri
 };
 
 function App() {
+  const [showToast, setShowToast] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [questionStartTime, setQuestionStartTime] = useState<number | null>(null);
@@ -359,6 +360,22 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 relative">
+      {showToast && (
+        <div className="fixed top-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg z-50 animate-fade-in-out">
+          Question copied to clipboard, open QuickLaTeX to view the question
+        </div>
+      )}
+      <div className="absolute top-4 left-4">
+        <a
+          href="https://github.com/nsdevaraj/jeeQuestionBank"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <Github className="w-5 h-5" />
+          <span className="text-sm">View on GitHub</span>
+        </a>
+      </div>
       <div className="absolute top-4 right-4 text-gray-600 text-sm max-w-xs text-right">
         {currentQ.description}
       </div>
@@ -411,6 +428,8 @@ function App() {
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(currentQ.question);
+                  setShowToast(true);
+                  setTimeout(() => setShowToast(false), 2000);
                 }}
                 className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity"
                 title="Copy question"
