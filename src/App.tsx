@@ -364,8 +364,12 @@ function App() {
       </div>
       <div className="flex items-center justify-center p-4 h-screen">
         <div className="bg-white rounded-xl shadow-lg p-8 max-w-2xl w-full">
-          <div className="mb-8"><h4>
-          <a href="https://quicklatex.com">use quicklatex</a>, if question is not properly displayed</h4>
+          <div className="mb-8">
+            <div className="flex items-center gap-2 text-sm text-gray-600 mb-4 bg-gray-50 p-3 rounded-lg">
+              <BookOpen className="w-4 h-4" />
+              <span>Having trouble viewing the question? Try using (copy and paste) </span>
+              <a href="https://quicklatex.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">QuickLaTeX</a>
+            </div>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-900">
                 Question {currentQuestion + 1} of {questions.length}
