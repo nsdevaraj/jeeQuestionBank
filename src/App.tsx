@@ -69,8 +69,32 @@ const renderMathInline = (text: string) => {
 };
 
 const renderMath = (text: string) => {
-  const parts = text.split(/\n+/);
+  // First handle display math mode as a whole
+  if (text.includes("\\[") && text.includes("\\]")) {
+    const mathContent = text.match(/\\\[([\s\S]*?)\\\]/)?.[1];
+    if (mathContent) {
+      try {
+        return (
+          <div className="flex justify-center my-4">
+            <div
+              dangerouslySetInnerHTML={{
+                __html: katex.renderToString(mathContent.trim(), {
+                  throwOnError: false,
+                  displayMode: true
+                }),
+              }}
+            />
+          </div>
+        );
+      } catch (error) {
+        console.error("KaTeX rendering error:", error);
+        return <div>{mathContent}</div>;
+      }
+    }
+  }
 
+  // Then handle other cases
+  const parts = text.split(/\n+/);
   return parts.map((part, index) => {
     if (part.includes("\\begin{center}") && part.includes("\\begin{tabular}")) {
       const tableContent = part.match(/\\begin{tabular}([\s\S]*?)\\end{tabular}/)?.[1];
