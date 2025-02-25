@@ -5,14 +5,14 @@ import html2canvas from 'html2canvas';
 import quizData from './data/quiz.json';
 import 'katex/dist/katex.min.css';
 import katex from 'katex';
- 
+
 
 const Table = ({ content }: { content: string }) => {
   const rows = content
     .split("\\\\")
     .map((row) => row.trim())
     .filter((row) => row !== "\\hline" && row !== "");
-  
+
   const headers = rows[0].split("&").map((cell) => cell.trim());
   const bodyRows = rows.slice(1);
 
@@ -95,8 +95,8 @@ const SubjectSelection = ({ onSelectSubject }: { onSelectSubject: (subject: stri
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+      <div className="bg-white p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-md mx-4">
         <div className="text-center mb-8">
           <BookOpen className="w-16 h-16 mx-auto text-indigo-600 mb-4" />
           <h1 className="text-2xl font-bold text-gray-800">JEE Question Bank</h1>
@@ -176,7 +176,7 @@ function App() {
     const newAnswers = currentAnswers.includes(answer)
       ? currentAnswers.filter((a) => a !== answer)
       : [...currentAnswers, answer].sort();
-    
+
     setAnswers({
       ...answers,
       [currentQuestion]: newAnswers,
@@ -266,7 +266,7 @@ function App() {
 
       const imgWidth = 210; // A4 width in mm
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
+
       const pdf = new jsPDF({
         orientation: imgHeight > imgWidth ? 'portrait' : 'landscape',
         unit: 'mm',
@@ -359,42 +359,64 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 relative">
+    <div className="min-h-screen bg-gray-50 relative py-16 px-4">
       {showToast && (
-        <div className="fixed top-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg z-50 animate-fade-in-out">
+        <div className="fixed top-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg z-50 animate-fade-in-out max-w-[90%] sm:max-w-md">
           Question copied to clipboard, open QuickLaTeX to view the question
         </div>
       )}
-      <div className="absolute top-4 left-4">
-        <a
-          href="https://github.com/nsdevaraj/jeeQuestionBank"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          <Github className="w-5 h-5" />
-          <span className="text-sm">View on GitHub</span>
-        </a>
+
+      <div className="fixed top-0 left-0 right-0 bg-white shadow-sm z-40 p-4">
+        <div className="max-w-2xl mx-auto flex justify-between items-center">
+          <a
+            href="https://github.com/nsdevaraj/jeeQuestionBank"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <Github className="w-5 h-5" />
+            <span className="text-sm hidden sm:inline">View on GitHub</span>
+          </a>
+          <div className="text-gray-600 text-sm max-w-[200px] sm:max-w-xs text-right truncate">
+            {currentQ.description}
+          </div>
+        </div>
       </div>
-      <div className="absolute top-4 right-4 text-gray-600 text-sm max-w-xs text-right">
-        {currentQ.description}
-      </div>
-      <div className="flex items-center justify-center p-4 h-screen">
-        <div className="bg-white rounded-xl shadow-lg p-8 max-w-2xl w-full">
-          <div className="mb-8">
-            <div className="flex items-center gap-2 text-sm text-gray-600 mb-4 bg-gray-50 p-3 rounded-lg">
+
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-8 w-full max-w-2xl mx-auto">
+          <div className="mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-sm text-gray-600 mb-4 bg-gray-50 p-3 rounded-lg">
               <BookOpen className="w-4 h-4" />
-              <span>Having trouble viewing the question? Try using (copy and paste) </span>
-              <a href="https://quicklatex.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">QuickLaTeX</a>
+              <span className="flex-1">Having trouble viewing the question? Try</span>
+              <a href="https://quicklatex.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                QuickLaTeX
+              </a>
             </div>
-            <div className="flex justify-between items-center mb-4">
+
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
               <h2 className="text-xl font-semibold text-gray-900">
                 Question {currentQuestion + 1} of {questions.length}
               </h2>
-              <div className="text-sm text-gray-500">
-                Score: {calculateScore()} / {currentQuestion + 1}
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <label htmlFor="questionSelect" className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                  Go to Question:
+                </label>
+                <select
+                  id="questionSelect"
+                  value={currentQuestion}
+                  onChange={handleQuestionSelect}
+                  className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                >
+                  {questions.map((_, index) => (
+                    <option key={index} value={index}>
+                      {index + 1}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
+
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
                 className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
@@ -404,40 +426,27 @@ function App() {
               />
             </div>
           </div>
-          <div className="flex justify-center items-center gap-2 mt-4">
-            <label htmlFor="questionSelect" className="text-sm font-medium text-gray-700">Go to Question:</label>
-            <select
-              id="questionSelect"
-              value={currentQuestion}
-              onChange={handleQuestionSelect}
-              className="block w-18 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            >
-              {questions.map((_, index) => (
-                <option key={index} value={index}>
-                  {index + 1}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="mb-8">
+
+          <div className="mb-6 sm:mb-8">
             <div className="text-lg text-gray-800 mb-6">
               <div className="relative group">
-              <div className="max-h-[400px] overflow-y-auto">
-              {renderMath(currentQ.question)}
+                <div className="max-h-[50vh] overflow-y-auto px-2">
+                  {renderMath(currentQ.question)}
+                </div>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(currentQ.question);
+                    setShowToast(true);
+                    setTimeout(() => setShowToast(false), 2000);
+                  }}
+                  className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Copy question"
+                >
+                  <Copy className="w-5 h-5 text-gray-500 hover:text-gray-700" />
+                </button>
               </div>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(currentQ.question);
-                  setShowToast(true);
-                  setTimeout(() => setShowToast(false), 2000);
-                }}
-                className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                title="Copy question"
-              >
-                <Copy className="w-5 h-5 text-gray-500 hover:text-gray-700" />
-              </button>
             </div>
-            </div>
+
             <div className="space-y-3">
               {currentQ.type === "MCQ" && (
                 <div className="space-y-2">
@@ -445,11 +454,10 @@ function App() {
                     <button
                       key={option}
                       onClick={() => handleAnswer(option)}
-                      className={`w-full text-left p-4 rounded-lg border transition-all ${
-                        answers[currentQuestion]?.[0] === option
-                          ? 'border-indigo-600 bg-indigo-50'
-                          : 'border-gray-200 hover:border-indigo-300'
-                      }`}
+                      className={`w-full text-left p-4 rounded-lg border transition-all ${answers[currentQuestion]?.[0] === option
+                        ? 'border-indigo-600 bg-indigo-50'
+                        : 'border-gray-200 hover:border-indigo-300'
+                        }`}
                     >
                       {option}
                     </button>
@@ -462,11 +470,10 @@ function App() {
                     <button
                       key={option}
                       onClick={() => handleMultiAnswer(option)}
-                      className={`w-full text-left p-4 rounded-lg border transition-all ${
-                        answers[currentQuestion]?.includes(option)
-                          ? 'border-indigo-600 bg-indigo-50'
-                          : 'border-gray-200 hover:border-indigo-300'
-                      }`}
+                      className={`w-full text-left p-4 rounded-lg border transition-all ${answers[currentQuestion]?.includes(option)
+                        ? 'border-indigo-600 bg-indigo-50'
+                        : 'border-gray-200 hover:border-indigo-300'
+                        }`}
                     >
                       <div className="flex items-center">
                         {answers[currentQuestion]?.includes(option) ? (
@@ -491,15 +498,15 @@ function App() {
               )}
             </div>
           </div>
-          <div className="flex justify-end">
+
+          <div className="flex justify-end mt-6">
             <button
               onClick={handleNext}
               disabled={!answers[currentQuestion]}
-              className={`px-6 py-2 rounded-lg transition-all ${
-                answers[currentQuestion]
-                  ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              }`}
+              className={`w-full sm:w-auto px-6 py-2 rounded-lg transition-all ${answers[currentQuestion]
+                ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                }`}
             >
               {currentQuestion === questions.length - 1 ? 'Finish' : 'Next'}
             </button>
