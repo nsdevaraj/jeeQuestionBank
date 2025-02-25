@@ -71,26 +71,44 @@ const renderMathInline = (text: string) => {
 const renderMath = (text: string) => {
   // First handle display math mode as a whole
   if (text.includes("\\[") && text.includes("\\]")) {
-    const mathContent = text.match(/\\\[([\s\S]*?)\\\]/)?.[1];
-    if (mathContent) {
-      try {
-        return (
-          <div className="flex justify-center my-4">
-            <div
-              dangerouslySetInnerHTML={{
-                __html: katex.renderToString(mathContent.trim(), {
-                  throwOnError: false,
-                  displayMode: true
-                }),
-              }}
-            />
-          </div>
-        );
-      } catch (error) {
-        console.error("KaTeX rendering error:", error);
-        return <div>{mathContent}</div>;
-      }
-    }
+    const parts = text.split(/(\\\[[\s\S]*?\\\])/);
+    return (
+      <>
+        {parts.map((part, index) => {
+          if (part.startsWith("\\[") && part.endsWith("\\]")) {
+            const mathContent = part.slice(2, -2);
+            try {
+              return (
+                <div key={index} className="flex justify-center my-4">
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: katex.renderToString(mathContent.trim(), {
+                        throwOnError: false,
+                        displayMode: true
+                      }),
+                    }}
+                  />
+                </div>
+              );
+            } catch (error) {
+              console.error("KaTeX rendering error:", error);
+              return <div key={index}>{mathContent}</div>;
+            }
+          } else {
+            // Handle the text before and after the display math
+            const textParts = part.split(/\n+/);
+            return textParts.map((textPart, textIndex) => {
+              if (!textPart.trim()) return null;
+              return (
+                <p key={`${index}-${textIndex}`} className="my-2">
+                  {renderMathInline(textPart)}
+                </p>
+              );
+            });
+          }
+        })}
+      </>
+    );
   }
 
   // Then handle other cases
@@ -426,18 +444,20 @@ function App() {
                 <label htmlFor="questionSelect" className="text-sm font-medium text-gray-700 whitespace-nowrap">
                   Go to Question:
                 </label>
-                <select
+                <input
                   id="questionSelect"
-                  value={currentQuestion}
-                  onChange={handleQuestionSelect}
+                  type="number"
+                  min={1}
+                  max={questions.length}
+                  value={currentQuestion + 1}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value) - 1;
+                    if (value >= 0 && value < questions.length) {
+                      setCurrentQuestion(value);
+                    }
+                  }}
                   className="block w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                >
-                  {questions.map((_, index) => (
-                    <option key={index} value={index}>
-                      {index + 1}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
             </div>
 
@@ -454,7 +474,7 @@ function App() {
           <div className="mb-6 sm:mb-8">
             <div className="text-lg text-gray-800 mb-6">
               <div className="relative group">
-                <div className="max-h-[50vh] overflow-y-auto px-2">
+                <div className="max-h-[50vh] overflow-y-auto overflow-x-auto px-2">
                   {renderMath(currentQ.question)}
                 </div>
                 <button
