@@ -184,9 +184,6 @@ function App() {
   const questions = filteredQuestions;
   const currentQ = questions[currentQuestion];
 
-  const handleQuestionSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setCurrentQuestion(Number(event.target.value));
-  };
 
   const handleAnswer = (answer: string) => {
     // Record time spent on current question
@@ -428,13 +425,13 @@ function App() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="bg-white rounded-xl shadow-lg p-4 sm:p-8 w-full max-w-2xl mx-auto">
           <div className="mb-6 sm:mb-8">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-sm text-gray-600 mb-4 bg-gray-50 p-3 rounded-lg">
+            {/* <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-sm text-gray-600 mb-4 bg-gray-50 p-3 rounded-lg">
               <BookOpen className="w-4 h-4" />
               <span className="flex-1">Having trouble viewing the question? Try</span>
               <a href="https://quicklatex.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
                 QuickLaTeX
               </a>
-            </div>
+            </div> */}
 
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
               <h2 className="text-xl font-semibold text-gray-900">
