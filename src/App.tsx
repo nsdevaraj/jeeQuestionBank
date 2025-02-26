@@ -188,7 +188,7 @@ function App() {
   const handleAnswer = (answer: string) => {
     // Record time spent on current question
     if (questionStartTime) {
-      const timeSpent = Date.now() - questionStartTime;
+      const timeSpent = Date.now() - questionStartTime; // Keep in milliseconds
       setTimePerQuestion(prev => ({
         ...prev,
         [currentQuestion]: timeSpent
@@ -204,7 +204,7 @@ function App() {
     if (selectedSubject && !startTime) {
       setStartTime(Date.now());
     }
-  }, [selectedSubject]);
+  }, [selectedSubject, startTime]);
 
   useEffect(() => {
     setQuestionStartTime(Date.now());
@@ -357,6 +357,9 @@ function App() {
             {questions.map((q, index) => {
               const userAnswers = answers[index] || [];
               const isCorrect = JSON.stringify(userAnswers.sort()) === JSON.stringify(q.gold.split('').sort());
+              const timeSpent = timePerQuestion[index] || 0;
+              const timeInSeconds = (timeSpent / 1000).toFixed(1);
+
               return (
                 <div key={index} className={`p-6 rounded-lg border ${isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} mb-4`}>
                   <div className="flex items-start gap-4">
@@ -365,10 +368,15 @@ function App() {
                     ) : (
                       <XCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
                     )}
-                    <div>
-                      <h3 className="font-medium text-gray-900 mb-2">
-                        Question {index + 1}
-                      </h3>
+                    <div className="w-full">
+                      <div className="flex justify-between items-center mb-2">
+                        <h3 className="font-medium text-gray-900">
+                          Question {index + 1}
+                        </h3>
+                        <span className="text-sm text-gray-600">
+                          Time spent: {timeInSeconds}s
+                        </span>
+                      </div>
                       <div className="text-lg text-gray-800 mb-4 p-4 bg-white rounded border">
                         {renderMath(q.question)}
                       </div>
